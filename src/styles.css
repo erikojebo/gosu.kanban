@@ -1,14 +1,9 @@
-div #board {
+#board {
     float: left;
     width: 100%;
 }
 
-div .swimlane {
-    width: 200px;
-    float: left;
-}
-
-div .postit {
+dd ul li {
     width: 150px;
     height: 150px;
     border-color: black;
@@ -17,4 +12,5 @@ div .postit {
     background-color: #cecece;
     margin: 10 10 10 0px;
     padding: 10px;
+    list-style: none;
 }

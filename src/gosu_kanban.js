@@ -40,13 +40,16 @@ http.createServer(function (request, response) {
 
     console.log('request starting for path ' + requestedPath);
 
-    if (requestedPath == '/styles.css') {
+    if (requestedPath == '/client.js') {
+        serveFile(response, './client.js', 'text/javascript');
+    }
+    else if (requestedPath == '/styles.css') {
         serveFile(response, './styles.css', 'text/css');
     }
-    if (requestedPath == '/favicon.ico') {
+    else if (requestedPath == '/favicon.ico') {
         serveFile(response, './favicon.ico', 'image/vnd.microsoft.icon');
     }
-    if (requestedPath == '/board') {
+    else if (requestedPath == '/board') {
         sendBoard(response);
     }
     else {
