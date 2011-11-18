@@ -1,0 +1,20 @@
+div #board {
+    float: left;
+    width: 100%;
+}
+
+div .swimlane {
+    width: 200px;
+    float: left;
+}
+
+div .postit {
+    width: 150px;
+    height: 150px;
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    background-color: #cecece;
+    margin: 10 10 10 0px;
+    padding: 10px;
+}
