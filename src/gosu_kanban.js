@@ -42,34 +42,6 @@ function serveWhitelistFile(requestedPath, response) {
     }
 }
 
-whitelistFile('/index.html', 'text/html');
-whitelistFile('/styles.css', 'text/css');
-whitelistFile('/client.js', 'text/javascript');
-whitelistFile('/favicon.ico', 'image/vnd.microsoft.icon');
-whitelistFile('/postit_small.png', 'image/png');
-
-fs.readFile("kanban.txt", function(error, content) {
-    var lines = content.toString().replace(/\r/g, "").split('\n');
-    var swimlane = null;
-
-    for (var i = 0; i < lines.length; i++) {
-
-        // Is it a swimlane header?
-        if (i < lines.length - 1 && lines[i+1].indexOf("===") == 0) {
-            swimlane = {
-                "name": lines[i],
-                "postits" : []
-            }
-
-            board.push(swimlane);
-        }
-        // non empty and non separator line
-        else if (lines[i].indexOf("* ") == 0) {
-            swimlane["postits"].push(lines[i].substring(2));
-        }
-    }
-});
-
 function saveBoard(path) {
     var output = "";
     for (var i = 0; i < board.length; i++) {
@@ -98,6 +70,34 @@ function saveBoard(path) {
         }
     });
 }
+
+whitelistFile('/index.html', 'text/html');
+whitelistFile('/styles.css', 'text/css');
+whitelistFile('/client.js', 'text/javascript');
+whitelistFile('/favicon.ico', 'image/vnd.microsoft.icon');
+whitelistFile('/postit_small.png', 'image/png');
+
+fs.readFile("kanban.txt", function(error, content) {
+    var lines = content.toString().replace(/\r/g, "").split('\n');
+    var swimlane = null;
+
+    for (var i = 0; i < lines.length; i++) {
+
+        // Is it a swimlane header?
+        if (i < lines.length - 1 && lines[i+1].indexOf("===") == 0) {
+            swimlane = {
+                "name": lines[i],
+                "postits" : []
+            }
+
+            board.push(swimlane);
+        }
+        // non empty and non separator line
+        else if (lines[i].indexOf("* ") == 0) {
+            swimlane["postits"].push(lines[i].substring(2));
+        }
+    }
+});
 
 http.createServer(function (request, response) {
 
