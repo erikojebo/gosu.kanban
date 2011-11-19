@@ -68,8 +68,6 @@ fs.readFile("kanban.txt", function(error, content) {
             swimlane["postits"].push(lines[i].substring(2));
         }
     }
-
-    saveBoard("./kanban2.txt");
 });
 
 function saveBoard(path) {
@@ -79,7 +77,11 @@ function saveBoard(path) {
 
         output += swimlane.name + "\n";
 
-        var underline = swimlane.name.split("").map(function (c) { return "=" }).join().replace(/,/g, "");
+        var underline = swimlane.name.split("")
+            .map(function (c) { return "=" })
+            .reduce(function (x, y) {
+                return x + y;
+            }, "");
 
         output += underline + "\n";;
 
