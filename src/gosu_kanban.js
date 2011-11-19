@@ -2,6 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var fileWhitelist = {};
+var board = [];
 
 function serveFile(response, path, contentType) {
     fs.readFile(path, function(error, content) {
@@ -18,29 +19,15 @@ function serveFile(response, path, contentType) {
 }
 
 function sendBoard(response) {
-    var board = [
-        {
-            "name": "Ready",
-            "postits" : ["Do the dishes", "Do the laundry"]
-        },
-        {
-            "name": "In progress",
-            "postits" : ["Watch TV", "Surf the web"]
-        },
-        {
-            "name": "Done",
-            "postits" : ["Eat dinner"]
-        }];
-
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(board), 'utf-8');
 }
 
 function whitelistFile(requestedPath, contentType) {
-    fileWhitelist[requestedPath] = { 
-        contentType: contentType, 
-        requestedPath: requestedPath, 
-        fileSystemPath: "." + requestedPath 
+    fileWhitelist[requestedPath] = {
+        contentType: contentType,
+        requestedPath: requestedPath,
+        fileSystemPath: "." + requestedPath
     };
 }
 
@@ -61,6 +48,55 @@ whitelistFile('/client.js', 'text/javascript');
 whitelistFile('/favicon.ico', 'image/vnd.microsoft.icon');
 whitelistFile('/postit_small.png', 'image/png');
 
+fs.readFile("kanban.txt", function(error, content) {
+    var lines = content.toString().replace(/\r/g, "").split('\n');
+    var swimlane = null;
+
+    for (var i = 0; i < lines.length; i++) {
+
+        // Is it a swimlane header?
+        if (i < lines.length - 1 && lines[i+1].indexOf("===") == 0) {
+            swimlane = {
+                "name": lines[i],
+                "postits" : []
+            }
+
+            board.push(swimlane);
+        }
+        // non empty and non separator line
+        else if (lines[i].indexOf("* ") == 0) {
+            swimlane["postits"].push(lines[i].substring(2));
+        }
+    }
+
+    saveBoard("./kanban2.txt");
+});
+
+function saveBoard(path) {
+    var output = "";
+    for (var i = 0; i < board.length; i++) {
+        var swimlane = board[i];
+
+        output += swimlane.name + "\n";
+
+        var underline = swimlane.name.split("").map(function (c) { return "=" }).join().replace(/,/g, "");
+
+        output += underline + "\n";;
+
+        for (var j = 0; j < swimlane.postits.length; j++) {
+            output += swimlane.postits[j] + "\n";
+        }
+
+        output += "\n";
+    }
+
+    fs.writeFile(path, output, function(error) {
+        if (error) {
+            console.log("error writing board to file: " + path);
+        }
+    });
+}
+
 http.createServer(function (request, response) {
 
     var requestedPath = url.parse(request.url).pathname
@@ -80,27 +116,6 @@ http.createServer(function (request, response) {
         response.writeHead(404);
         response.end();
     }
-
-
-    // if (requestedPath == '/postit_small.png') {
-    //     serveFile(response, './postit_small.png', 'image/png');
-    // }
-    // if (requestedPath == '/client.js') {
-    //     serveFile(response, './client.js', 'text/javascript');
-    // }
-    // else if (requestedPath == '/styles.css') {
-    //     serveFile(response, './styles.css', 'text/css');
-    // }
-    // else if (requestedPath == '/favicon.ico') {
-    //     serveFile(response, './favicon.ico', 'image/vnd.microsoft.icon');
-    // }
-    // if (requestedPath == '/board') {
-    //     sendBoard(response);
-    // }
-    // else {
-    //     serveFile(response, './index.html', 'text/html');
-    // }
-
 }).listen(8080);
 
 
