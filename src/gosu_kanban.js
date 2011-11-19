@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+var querystring = require('querystring');
 var fileWhitelist = {};
 var board = [];
 
@@ -102,6 +103,7 @@ fs.readFile("kanban.txt", function(error, content) {
 http.createServer(function (request, response) {
 
     var requestedPath = url.parse(request.url).pathname
+    var query = querystring.parse(request.query);
 
     console.log('request starting for path ' + requestedPath);
 
@@ -113,6 +115,11 @@ http.createServer(function (request, response) {
     }
     else if (isWhitelistedFile(requestedPath)) {
         serveWhitelistFile(requestedPath, response);
+    }
+    else if (requestedPath == '/postit' && request.method == "DELETE") {
+        console.log("delete " + query["text"]);
+        response.writeHead(200);
+        response.end();
     }
     else {
         response.writeHead(404);

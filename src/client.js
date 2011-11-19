@@ -7,7 +7,22 @@ function loadBoard() {
             var postitList = $('<ul />');
 
             $.each(swimlane.postits, function(index, postit) {
-                postitList.append($('<li>' + postit + '</li>'));
+                var deleteLink = $('<a>x</a>');
+
+                deleteLink.click(function () {
+                    $.ajax({
+                        url: '/postit?text=' + encodeURI(postit),
+                        type: 'DELETE',
+                        success: function(result) {
+                            alert("deleted");
+                        }
+                    });
+                });
+                
+                var listItem = $('<li />');
+                listItem.append(postit);
+                listItem.append(deleteLink);
+                postitList.append(listItem);
             });
 
             swimlaneDiv.append(postitList);
