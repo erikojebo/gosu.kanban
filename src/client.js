@@ -3,17 +3,15 @@ function loadBoard() {
 
         $.each(data, function(index, swimlane) {
 
-            $('#board').append('<dt>' + swimlane.name + '</dt>');
-
-            var postitDd = $('<dd />');
+            var swimlaneDiv = $('<div class="swimlane"><h2>' + swimlane.name + '</h2></div>');
             var postitList = $('<ul />');
 
             $.each(swimlane.postits, function(index, postit) {
                 postitList.append($('<li>' + postit + '</li>'));
             });
 
-            postitDd.append(postitList);
-            $('#board').append(postitDd);
+            swimlaneDiv.append(postitList);
+            $('#board').append(swimlaneDiv);
         });
     });
 }
