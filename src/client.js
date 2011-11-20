@@ -37,6 +37,14 @@ function loadBoard() {
                 var listItem = $('<li />');
                 var span = $('<span />');
 
+                listItem.hover(function (event) {
+                    $(this).children('a').fadeIn(150);
+                }, function (event) {
+                    $(this).children('a').fadeOut(150);
+                });                
+
+                deleteLink.hide();
+
                 span.append(postit);
 
                 listItem.append(deleteLink);
@@ -49,3 +57,4 @@ function loadBoard() {
         });
     });
 }
+
