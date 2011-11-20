@@ -80,10 +80,7 @@ function deletePostit(text, response) {
     response.end();
 
     var result = findPostit(text);
-    console.log(JSON.stringify(result));
     board[result.swimlaneIndex].postits.splice(result.postitIndex, 1);
-
-    console.log(JSON.stringify(board));
 
     saveBoard();
 }

@@ -18,11 +18,20 @@ function loadBoard() {
                         url: '/postit?text=' + encodeURI(postit),
                         type: 'DELETE',
                         success: function(result) {
-                            alert("deleted");
+
+                            var listItems = $('li span');
+
+                            var matchingListItems = $.grep(listItems, function (x, i) {
+                                return $(x).html() === postit;
+                            });
+
+                            $.each(matchingListItems, function(i, x) {
+                                $(x).parent().remove();
+                            });
                         }
                     });
                 });
-                
+
                 var listItem = $('<li />');
                 var span = $('<span />');
 
