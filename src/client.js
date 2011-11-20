@@ -26,7 +26,9 @@ function loadBoard() {
                             });
 
                             $.each(matchingListItems, function(i, x) {
-                                $(x).parent().remove();
+                                $(x).parent().fadeOut(300, function () {
+                                    $(x).remove();
+                                });
                             });
                         }
                     });
