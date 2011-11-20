@@ -1,7 +1,6 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
-var querystring = require('querystring');
 var fileWhitelist = {};
 var board = [];
 
@@ -44,6 +43,8 @@ function serveWhitelistFile(requestedPath, response) {
 }
 
 function saveBoard(path) {
+    path = path !== undefined ? path : "./kanban.txt";
+
     var output = "";
     for (var i = 0; i < board.length; i++) {
         var swimlane = board[i];
@@ -59,7 +60,7 @@ function saveBoard(path) {
         output += underline + "\n";;
 
         for (var j = 0; j < swimlane.postits.length; j++) {
-            output += swimlane.postits[j] + "\n";
+            output += "* " + swimlane.postits[j] + "\n";
         }
 
         output += "\n";
@@ -70,6 +71,34 @@ function saveBoard(path) {
             console.log("error writing board to file: " + path);
         }
     });
+}
+
+function deletePostit(text, response) {
+    console.log("Deleting postit: " + text);
+
+    response.writeHead(200);
+    response.end();
+
+    var result = findPostit(text);
+    console.log(JSON.stringify(result));
+    board[result.swimlaneIndex].postits.splice(result.postitIndex, 1);
+
+    console.log(JSON.stringify(board));
+
+    saveBoard();
+}
+
+function findPostit(text) {
+    for (var i = 0; i < board.length; i++) {
+        var swimlane = board[i];
+
+        for (var j = 0; j < swimlane.postits.length; j++) {
+            var postit = swimlane.postits[j];
+            if (postit === text) {
+                return { swimlaneIndex: i, postitIndex: j };
+            }
+        }
+    }
 }
 
 whitelistFile('/index.html', 'text/html');
@@ -102,8 +131,10 @@ fs.readFile("kanban.txt", function(error, content) {
 
 http.createServer(function (request, response) {
 
-    var requestedPath = url.parse(request.url).pathname
-    var query = querystring.parse(request.query);
+    var parseQueryString = true;
+    var requestedUrl = url.parse(request.url, parseQueryString);
+    var requestedPath = requestedUrl.pathname
+    var queryString = requestedUrl.query;
 
     console.log('request starting for path ' + requestedPath);
 
@@ -117,16 +148,12 @@ http.createServer(function (request, response) {
         serveWhitelistFile(requestedPath, response);
     }
     else if (requestedPath == '/postit' && request.method == "DELETE") {
-        console.log("delete " + query["text"]);
-        response.writeHead(200);
-        response.end();
+        deletePostit(decodeURI(queryString.text), response);
     }
     else {
         response.writeHead(404);
         response.end();
     }
 }).listen(8080);
-
-
 
 console.log('Server running at http://127.0.0.1:8080/');
