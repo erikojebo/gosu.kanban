@@ -80,10 +80,24 @@ li {
     display: inline-block;
     font-size: 15px;
     font-family: cursive;
-    width: 105px;
-    height: 120px;
+    width: 150px;
+    height: 145px;
     margin: 10px 0px;
-    padding: 30px 30px 0px 30px;
     background-image: url('postit_small.png');
     background-repeat: no-repeat;
+}
+
+li a {
+    display: inline-block;
+    float: right;
+    margin: 5px 10px 0px 0px;
+}
+
+li a:active {
+    color: black;
+}
+
+li span {
+    display: block;
+    margin: 30px 20px 0px 25px;
 }
