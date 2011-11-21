@@ -14,9 +14,20 @@ function deletePostit(postit) {
 
 }
 
+function enableShowWhenHoveredAnimation(element, parent) {
+    $(parent).hover(function (event) {
+        console.log("hover");
+        $(this).children('a.action').fadeIn(150);
+    }, function (event) {
+        $(this).children('a.action').fadeOut(150);
+    });
+
+    element.hide();
+}
+
 function appendPostit(postit, postitList) {
 
-    var deleteLink = $('<a href="#">x</a>');
+    var deleteLink = $('<a href="#" class="action">x</a>');
 
     deleteLink.click(function () {
 
@@ -34,13 +45,7 @@ function appendPostit(postit, postitList) {
     var listItem = $('<li />');
     var span = $('<span />');
 
-    listItem.hover(function (event) {
-        $(this).children('a').fadeIn(150);
-    }, function (event) {
-        $(this).children('a').fadeOut(150);
-    });
-
-    deleteLink.hide();
+    enableShowWhenHoveredAnimation(deleteLink, listItem);
 
     span.append(postit);
 
@@ -50,7 +55,17 @@ function appendPostit(postit, postitList) {
 }
 
 function addSwimlane(swimlane) {
-    var swimlaneDiv = $('<div class="swimlane"><h2>' + swimlane.name + '</h2></div>');
+    var swimlaneDiv = $('<div class="swimlane">');
+    var deleteLink = $('<a href="#" class="action">x</a>');
+    var addPostitLink = $('<a href="#" class="action">+</a>');
+
+    swimlaneDiv.append(deleteLink);
+    swimlaneDiv.append(addPostitLink);
+    swimlaneDiv.append($('<h2>' + swimlane.name + '</h2></div>'));
+
+    enableShowWhenHoveredAnimation(deleteLink, swimlaneDiv);
+    enableShowWhenHoveredAnimation(addPostitLink, swimlaneDiv);
+
     var postitList = $('<ul />');
 
     $.each(swimlane.postits, function(index, postit) {
