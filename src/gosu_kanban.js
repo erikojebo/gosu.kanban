@@ -1,13 +1,28 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
-var fileWhitelist = {};
 var board = [];
+var path = require('path');
 
-function serveFile(response, path, contentType) {
-    fs.readFile(path, function(error, content) {
+var contentTypes = {
+    'css': 'text/css',
+    'js': 'text/javascript',
+    'png': 'image/png',
+    'ico': 'image/vnd.microsoft.icon'
+};
+
+function serveFile(response, filePath) {
+    var extension = path.extname(filePath);
+
+    if (extension.indexOf('.') == 0) {
+        extension = extension.substr(1);
+    }
+
+    var contentType = contentTypes[extension];
+
+    fs.readFile(filePath, function(error, content) {
         if (error) {
-            console.log("failed to read file: " + path);
+            console.log("failed to read file: " + filePath);
             response.writeHead(500);
             response.end();
         }
@@ -18,32 +33,35 @@ function serveFile(response, path, contentType) {
     });
 }
 
+function serveUnvalidatedPath(requestedPath, response) {
+
+    if (requestedPath.indexOf('/') == 0) {
+        requestedPath = requestedPath.substr(1);
+    }
+    
+    fs.realpath(requestedPath, function (error, realPath) {
+        if (error) {
+            console.log('could not resolve path: ' + requestedPath);
+            response.writeHead(404);
+            response.end();
+        } else if (realPath.indexOf(__dirname) !== 0) { // File is outside of script file directory
+            console.log('file outside root was requested: ' + realPath);
+            response.writeHead(403);
+            response.end();
+        } else {
+            console.log('serving file: ' + realPath);
+            serveFile(response, realPath);
+        }
+    });
+}
+
 function sendBoard(response) {
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(board), 'utf-8');
 }
 
-function whitelistFile(requestedPath, contentType) {
-    fileWhitelist[requestedPath] = {
-        contentType: contentType,
-        requestedPath: requestedPath,
-        fileSystemPath: "." + requestedPath
-    };
-}
-
-function isWhitelistedFile(requestedPath) {
-    return fileWhitelist[requestedPath] !== undefined;
-}
-
-function serveWhitelistFile(requestedPath, response) {
-    var file = fileWhitelist[requestedPath];
-    if (file !== undefined) {
-        serveFile(response, file.fileSystemPath, file.contentType);
-    }
-}
-
-function saveBoard(path) {
-    path = path !== undefined ? path : "./kanban.txt";
+function saveBoard(filePath) {
+    filePath = filePath !== undefined ? filePath : "./kanban.txt";
 
     var output = "";
     for (var i = 0; i < board.length; i++) {
@@ -66,9 +84,9 @@ function saveBoard(path) {
         output += "\n";
     }
 
-    fs.writeFile(path, output, function(error) {
+    fs.writeFile(filePath, output, function(error) {
         if (error) {
-            console.log("error writing board to file: " + path);
+            console.log("error writing board to file: " + filePath);
         }
     });
 }
@@ -97,12 +115,6 @@ function findPostit(text) {
         }
     }
 }
-
-whitelistFile('/index.html', 'text/html');
-whitelistFile('/styles.css', 'text/css');
-whitelistFile('/client.js', 'text/javascript');
-whitelistFile('/favicon.ico', 'image/vnd.microsoft.icon');
-whitelistFile('/postit_small.png', 'image/png');
 
 fs.readFile("kanban.txt", function(error, content) {
     var lines = content.toString().replace(/\r/g, "").split('\n');
@@ -141,15 +153,11 @@ http.createServer(function (request, response) {
     else if (requestedPath == '/board') {
         sendBoard(response);
     }
-    else if (isWhitelistedFile(requestedPath)) {
-        serveWhitelistFile(requestedPath, response);
-    }
     else if (requestedPath == '/postit' && request.method == "DELETE") {
         deletePostit(decodeURI(queryString.text), response);
     }
     else {
-        response.writeHead(404);
-        response.end();
+        serveUnvalidatedPath(requestedPath, response);
     }
 }).listen(8080);
 
