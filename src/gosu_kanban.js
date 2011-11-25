@@ -148,7 +148,7 @@ http.createServer(function (request, response) {
     console.log('request starting for path ' + requestedPath);
 
     if (requestedPath == '/') {
-        serveWhitelistFile('/index.html', response);
+        serveFile(response, 'index.html');
     }
     else if (requestedPath == '/board') {
         sendBoard(response);
