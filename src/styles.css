@@ -102,3 +102,30 @@ li span {
     display: block;
     margin: 30px 20px 0px 25px;
 }
+
+#addPostitForm {
+    width: 355px;
+}
+
+form button {
+    width: 80px;
+}
+
+form label {
+    width: 150px;
+    display: inline-block;
+}
+
+form input {
+    width: 160px;
+    display: inline-block;
+}
+
+fieldset {
+    display: block;
+}
+
+fieldset.dialogButtons {
+    float: right;
+    margin-top: 10px;
+}

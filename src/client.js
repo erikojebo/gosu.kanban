@@ -1,3 +1,6 @@
+var currentSwimlane = null;
+var dialogWidth = 0;
+
 function deletePostit(postit) {
 
     var listItems = $('li span');
@@ -11,12 +14,10 @@ function deletePostit(postit) {
             $(x).remove();
         });
     });
-
 }
 
 function enableShowWhenHoveredAnimation(element, parent) {
     $(parent).hover(function (event) {
-        console.log("hover");
         $(this).children('a.action').fadeIn(150);
     }, function (event) {
         $(this).children('a.action').fadeOut(150);
@@ -59,6 +60,30 @@ function addSwimlane(swimlane) {
     var deleteLink = $('<a href="#" class="action">x</a>');
     var addPostitLink = $('<a href="#" class="action">+</a>');
 
+    deleteLink.click(function() {
+        $.ajax({
+            url: '/swimlane?name=' + encodeURI(swimlane.name),
+            type: 'DELETE',
+            success: function(result) {
+                deleteSwimlane(swimlane)
+            }
+        });
+    });
+
+        var addPostitDialog = $("#addPostitForm").dialog({
+        width: dialogWidth,
+        autoOpen: false,
+        title: "Add Postit"
+    });
+
+    addPostitLink.click(function() {
+        event.preventDefault();
+
+        currentSwimlane = swimlane.name;
+
+        addPostitDialog.dialog('open');
+    });
+
     swimlaneDiv.append(deleteLink);
     swimlaneDiv.append(addPostitLink);
     swimlaneDiv.append($('<h2>' + swimlane.name + '</h2></div>'));
@@ -85,3 +110,7 @@ function loadBoard() {
     });
 }
 
+function initializePage() {
+    dialogWidth = $("#addPostitForm").css("width");
+    loadBoard(); 
+}
