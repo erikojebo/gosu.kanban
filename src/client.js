@@ -1,5 +1,10 @@
 var currentSwimlane = null;
 var dialogWidth = 0;
+var addPostitDialog = null;
+
+function getCurrentSwimlane() {
+    return currentSwimlane;
+}
 
 function deletePostit(postit) {
 
@@ -35,7 +40,7 @@ function appendPostit(postit, postitList) {
         event.preventDefault();
 
         $.ajax({
-            url: '/postit?text=' + encodeURI(postit),
+
             type: 'DELETE',
             success: function(result) {
                 deletePostit(postit)
@@ -70,16 +75,12 @@ function addSwimlane(swimlane) {
         });
     });
 
-        var addPostitDialog = $("#addPostitForm").dialog({
-        width: dialogWidth,
-        autoOpen: false,
-        title: "Add Postit"
-    });
-
     addPostitLink.click(function() {
         event.preventDefault();
 
-        currentSwimlane = swimlane.name;
+        $("#postitText").val("");
+
+        currentSwimlane = swimlane;
 
         addPostitDialog.dialog('open');
     });
@@ -110,7 +111,44 @@ function loadBoard() {
     });
 }
 
-function initializePage() {
+function initializeAddPostitDialog() {
     dialogWidth = $("#addPostitForm").css("width");
-    loadBoard(); 
+
+    var submit = function () {
+        var postitText = $("#postitText").val();
+
+        var currentSwimlaneName = getCurrentSwimlane().name;
+
+        $.post("/postit/add?swimlane=" + encodeURI(currentSwimlaneName) +
+               "&postit=" + encodeURI(postitText), function (data) {
+                   var list = $('h2:contains(' + currentSwimlaneName + ')').parent();
+                   appendPostit(postitText, list);
+               });
+        $("#addPostitForm").dialog("close");
+    };
+
+    addPostitDialog = $("#addPostitForm").dialog({
+        width: dialogWidth,
+        autoOpen: false,
+        title: "Add Postit",
+        buttons: {
+            "Add": submit,
+            "Cancel": function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+
+    $('#addPostitForm input').keypress(function (e) {
+
+        if (e.which == 13) {
+            e.preventDefault();
+            submit();
+        }
+    });
+}
+
+function initializePage() {
+    initializeAddPostitDialog();
+    loadBoard();
 }

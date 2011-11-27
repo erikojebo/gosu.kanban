@@ -156,6 +156,10 @@ http.createServer(function (request, response) {
     else if (requestedPath == '/postit' && request.method == "DELETE") {
         deletePostit(decodeURI(queryString.text), response);
     }
+    else if (requestedPath == '/postit/add' && request.method == "POST") {
+        response.writeHead(200);
+        response.end();
+    }
     else {
         serveUnvalidatedPath(requestedPath, response);
     }

@@ -105,6 +105,7 @@ li span {
 
 #addPostitForm {
     width: 355px;
+    display: none;
 }
 
 form button {
